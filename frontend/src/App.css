@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/* iPhone SE Responsive Design - 375px width */
+#root {
+  max-width: 375px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Smooth scrolling for modals */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
