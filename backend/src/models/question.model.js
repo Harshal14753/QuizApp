@@ -7,24 +7,24 @@ const questionSchema = new mongoose.Schema({
         enum: ['Practice Quiz', 'Normal Quiz', 'Audio Quiz', 'Video Quiz', 'True / False', 'Daily Quiz', 'Fear Factor'],
     },
     category: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'BasicItem',
         required: [true, 'Category is required'],
-        enum: ['General Knowledge', 'History', 'Sports'],
     },
     skill: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'BasicItem',
         required: [true, 'Skill is required'],
-        enum: ['Beginner', 'Advance', 'Expert'],
     },
     classification: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'BasicItem',
         required: [true, 'Classification is required'],
-        enum: ['Easy', 'Medium', 'Hard'],
     },
     level: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'BasicItem',
         required: [true, 'Level is required'],
-        enum: ['Level 1', 'Level 2', 'Level 3'],
     },
     image: {
         type: String,

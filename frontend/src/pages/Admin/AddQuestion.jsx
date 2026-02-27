@@ -5,6 +5,7 @@ import {
   createQuestion,
   updateQuestion,
   getQuestionById,
+  getBasicItemsByType,
 } from '../../services/AdminService'
 
 const QUIZ_LABELS = {
@@ -17,10 +18,6 @@ const QUIZ_LABELS = {
   'fear-factor':   'Fear Factor',
 }
 
-const CATEGORIES     = ['General Knowledge', 'History', 'Sports']
-const SKILLS         = ['Beginner', 'Advance', 'Expert']
-const CLASSIFICATIONS = ['Easy', 'Medium', 'Hard']
-const LEVELS         = ['Level 1', 'Level 2', 'Level 3']
 
 const EMPTY_FORM = {
   category:       '',
@@ -56,6 +53,26 @@ const AddQuestion = () => {
   const [saveErr, setSaveErr] = useState(null)
   const [loading, setLoading] = useState(isEdit)
 
+  const [categories,     setCategories]     = useState([])
+  const [skills,         setSkills]         = useState([])
+  const [classifications, setClassifications] = useState([])
+  const [levels,         setLevels]         = useState([])
+
+  // ── Load BasicItem dropdowns ─────────────────────────────────────────────
+  useEffect(() => {
+    Promise.all([
+      getBasicItemsByType('category'),
+      getBasicItemsByType('skill'),
+      getBasicItemsByType('classification'),
+      getBasicItemsByType('level'),
+    ]).then(([cats, skls, clss, lvls]) => {
+      setCategories(cats.items     ?? [])
+      setSkills(skls.items         ?? [])
+      setClassifications(clss.items ?? [])
+      setLevels(lvls.items         ?? [])
+    }).catch(err => console.error('Failed to load basic items:', err))
+  }, [])
+
   // ── Load question data for edit ───────────────────────────────────────────
   useEffect(() => {
     if (!isEdit) return
@@ -64,10 +81,10 @@ const AddQuestion = () => {
       .then(data => {
         const q = data.question ?? data
         setForm({
-          category:       q.category       ?? '',
-          skill:          q.skill          ?? '',
-          classification: q.classification ?? '',
-          level:          q.level          ?? '',
+          category:       q.category?._id       ?? q.category       ?? '',
+          skill:          q.skill?._id          ?? q.skill          ?? '',
+          classification: q.classification?._id ?? q.classification ?? '',
+          level:          q.level?._id          ?? q.level          ?? '',
           image:          q.image          ?? '',
           question:       q.question       ?? '',
           options:        q.options?.length ? [...q.options, ...Array(Math.max(0, 4 - q.options.length)).fill('')] : ['', '', '', ''],
@@ -187,14 +204,14 @@ const AddQuestion = () => {
             <label style={labelStyle}>Category <span style={{ color: '#ef4444' }}>*</span></label>
             <select value={form.category} onChange={e => set('category', e.target.value)} style={inputStyle} required>
               <option value="">Select Category</option>
-              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
             </select>
           </div>
           <div style={fieldWrap}>
             <label style={labelStyle}>Skill <span style={{ color: '#ef4444' }}>*</span></label>
             <select value={form.skill} onChange={e => set('skill', e.target.value)} style={inputStyle} required>
               <option value="">Select Skill</option>
-              {SKILLS.map(s => <option key={s} value={s}>{s}</option>)}
+              {skills.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
             </select>
           </div>
         </div>
@@ -205,14 +222,14 @@ const AddQuestion = () => {
             <label style={labelStyle}>Classification <span style={{ color: '#ef4444' }}>*</span></label>
             <select value={form.classification} onChange={e => set('classification', e.target.value)} style={inputStyle} required>
               <option value="">Select Classification</option>
-              {CLASSIFICATIONS.map(c => <option key={c} value={c}>{c}</option>)}
+              {classifications.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
             </select>
           </div>
           <div style={fieldWrap}>
             <label style={labelStyle}>Level <span style={{ color: '#ef4444' }}>*</span></label>
             <select value={form.level} onChange={e => set('level', e.target.value)} style={inputStyle} required>
               <option value="">Select Level</option>
-              {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+              {levels.map(l => <option key={l._id} value={l._id}>{l.name}</option>)}
             </select>
           </div>
         </div>

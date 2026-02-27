@@ -82,27 +82,33 @@ const QuizQuestion = () => {
     }
   }
 
+  // ── Name helpers ──────────────────────────────────────────────────────────
+  const catName   = q => q.category?.name       ?? ''
+  const skillName = q => q.skill?.name          ?? ''
+  const className = q => q.classification?.name ?? ''
+  const lvlName   = q => q.level?.name          ?? ''
+
   // ── Filtered list ─────────────────────────────────────────────────────────
   const filtered = questions.filter(q => {
     const matchSearch = !search || q.question?.toLowerCase().includes(search.toLowerCase())
-    const matchCat    = !catFilter   || q.category   === catFilter
-    const matchSkill  = !skillFilter || q.skill      === skillFilter
-    const matchClass  = !classFilter || q.classification === classFilter
-    const matchLevel  = !levelFilter || q.level      === levelFilter
+    const matchCat    = !catFilter   || catName(q)   === catFilter
+    const matchSkill  = !skillFilter || skillName(q) === skillFilter
+    const matchClass  = !classFilter || className(q) === classFilter
+    const matchLevel  = !levelFilter || lvlName(q)   === levelFilter
     return matchSearch && matchCat && matchSkill && matchClass && matchLevel
   })
 
   // ── Dynamic filter options (each depends on upstream selection) ─────────────
-  const categoryOptions = [...new Set(questions.map(q => q.category).filter(Boolean))]
+  const categoryOptions = [...new Set(questions.map(catName).filter(Boolean))]
 
-  const afterCat    = catFilter   ? questions.filter(q => q.category === catFilter)           : questions
-  const skillOptions = [...new Set(afterCat.map(q => q.skill).filter(Boolean))]
+  const afterCat    = catFilter   ? questions.filter(q => catName(q)   === catFilter)   : questions
+  const skillOptions = [...new Set(afterCat.map(skillName).filter(Boolean))]
 
-  const afterSkill  = skillFilter ? afterCat.filter(q => q.skill === skillFilter)             : afterCat
-  const classOptions = [...new Set(afterSkill.map(q => q.classification).filter(Boolean))]
+  const afterSkill  = skillFilter ? afterCat.filter(q => skillName(q)  === skillFilter) : afterCat
+  const classOptions = [...new Set(afterSkill.map(className).filter(Boolean))]
 
-  const afterClass  = classFilter ? afterSkill.filter(q => q.classification === classFilter)  : afterSkill
-  const levelOptions = [...new Set(afterClass.map(q => q.level).filter(Boolean))]
+  const afterClass  = classFilter ? afterSkill.filter(q => className(q) === classFilter) : afterSkill
+  const levelOptions = [...new Set(afterClass.map(lvlName).filter(Boolean))]
 
   // ── Filter change handlers (reset all downstream filters on change) ────────
   const handleCatChange = (val) => {
@@ -283,10 +289,10 @@ const QuizQuestion = () => {
                     {/* Basic Info */}
                     <td style={{ padding: '14px 14px', lineHeight: 1.7 }}>
                       <div style={{ fontSize: 13, color: '#374151' }}>
-                        <div><b>Category :</b> {q.category ?? '—'}</div>
-                        <div><b>Skill :</b> {q.skill ?? '—'}</div>
-                        <div><b>Classification :</b> {q.classification ?? '—'}</div>
-                        <div><b>Level :</b> {q.level ?? '—'}</div>
+                        <div><b>Category :</b> {q.category?.name ?? '—'}</div>
+                        <div><b>Skill :</b> {q.skill?.name ?? '—'}</div>
+                        <div><b>Classification :</b> {q.classification?.name ?? '—'}</div>
+                        <div><b>Level :</b> {q.level?.name ?? '—'}</div>
                       </div>
                     </td>
 

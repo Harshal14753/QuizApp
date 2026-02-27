@@ -9,7 +9,7 @@ const ProtectedUserRoute = ({ children }) => {
 
     const token = localStorage.getItem('token')
 
-    const { user, setuser } = React.useContext(UserDataContext)
+    const { user, setUser } = React.useContext(UserDataContext)
 
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
@@ -17,10 +17,11 @@ const ProtectedUserRoute = ({ children }) => {
     useEffect(() => {
         if (!token) {
             navigate('/login');
+            return;
         }
 
         getUserProfile(token).then((data) => {
-            setuser(data);
+            setUser(data.user);
             setIsLoading(false);
         }).catch((error) => {
             console.error('Error fetching user profile:', error);
@@ -31,8 +32,8 @@ const ProtectedUserRoute = ({ children }) => {
             }
 
             navigate('/login');
-        }, [token, navigate]);
-    })
+        });
+    }, [token])
 
     return (
         <>

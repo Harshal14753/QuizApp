@@ -12,7 +12,12 @@ import {
   getQuestionById,
   createQuestion,
   updateQuestion,
-  deleteQuestion
+  deleteQuestion,
+  getBasicItemsByType,
+  getBasicItemById,
+  createBasicItem,
+  updateBasicItem,
+  deleteBasicItem
 } from "../controllers/admin.controller.js";
 import authAdmin from "../middleware/authAdmin.middleware.js";
 
@@ -37,5 +42,12 @@ router.get("/:quizType/question/:id", authAdmin, getQuestionById);
 router.post("/:quizType/question", authAdmin, createQuestion);
 router.put("/:quizType/question/:id", authAdmin, updateQuestion);
 router.delete("/:quizType/question/:id", authAdmin, deleteQuestion);
+
+// Protected Admin BasicItem routes (categories, skills, classifications, levels) can be added similarly
+router.get('/basic-item/:basicItem', authAdmin, getBasicItemsByType);
+router.get('/basic-item/:basicItem/:id', authAdmin, getBasicItemById);
+router.post('/basic-item/:basicItem', authAdmin, createBasicItem);
+router.put('/basic-item/:basicItem/:id', authAdmin, updateBasicItem);
+router.delete('/basic-item/:basicItem/:id', authAdmin, deleteBasicItem);
 
 export default router;

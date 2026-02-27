@@ -1,71 +1,68 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-// import { getUserProfile } from '../services/UserService'
 import { UserDataContext } from '../context/UserContext'
+import { getQuizTypes, getCategories } from '../services/UserService'
+
+const QUIZ_TYPE_META = {
+    'Practice Quiz':  { icon: '✏️', bgColor: 'bg-red-400',    description: 'Practice with unlimited attempts' },
+    'Normal Quiz':    { icon: '🧠', bgColor: 'bg-amber-400',  description: 'Test your skills' },
+    'Audio Quiz':     { icon: '🎧', bgColor: 'bg-teal-500',   description: 'Learn by listening' },
+    'Video Quiz':     { icon: '🎥', bgColor: 'bg-indigo-600', description: 'Learn through videos' },
+    'True / False':   { icon: '✅', bgColor: 'bg-green-500',  description: 'True or false challenges' },
+    'Daily Quiz':     { icon: '📅', bgColor: 'bg-blue-500',   description: 'Daily challenge questions' },
+    'Fear Factor':    { icon: '😱', bgColor: 'bg-purple-600', description: 'Dare to answer!' },
+}
 
 const Home = () => {
     const navigate = useNavigate()
     const [activeNav, setActiveNav] = useState('home')
+    const [quizTypes, setQuizTypes] = useState([])
+    const [loadingTypes, setLoadingTypes] = useState(true)
+    const [categories, setCategories] = useState([])
+    const [loadingCategories, setLoadingCategories] = useState(true)
 
     const {user, setUser} = React.useContext(UserDataContext)
 
-
-    // Quiz Types/Zones
-    const quizTypes = [
-        {
-            id: 1,
-            icon: '✏️',
-            title: 'Practice Quiz',
-            bgColor: 'bg-red-400',
-            description: 'Practice with unlimited attempts'
-        },
-        {
-            id: 2,
-            icon: '🧠',
-            title: 'Normal Quiz',
-            bgColor: 'bg-amber-400',
-            description: 'Test your skills'
-        },
-        {
-            id: 3,
-            icon: '🎧',
-            title: 'Audio Quiz',
-            bgColor: 'bg-teal-500',
-            description: 'Learn by listening'
-        },
-        {
-            id: 4,
-            icon: '🎥',
-            title: 'Video Quiz',
-            bgColor: 'bg-indigo-600',
-            description: 'Learn through videos'
+    useEffect(() => {
+        const fetchQuizTypes = async () => {
+            try {
+                const data = await getQuizTypes()
+                if (data.success) {
+                    const mapped = data.quizTypes.map((type, idx) => {
+                        const meta = QUIZ_TYPE_META[type] || { icon: '📝', bgColor: 'bg-gray-500', description: 'Start the quiz' }
+                        return { id: idx + 1, title: type, ...meta }
+                    })
+                    setQuizTypes(mapped)
+                }
+            } catch (error) {
+                console.error('Failed to fetch quiz types:', error)
+            } finally {
+                setLoadingTypes(false)
+            }
         }
+        fetchQuizTypes()
+    }, [])
+
+    const CATEGORY_COLORS = [
+        'bg-orange-500', 'bg-green-500', 'bg-blue-500', 'bg-pink-500',
+        'bg-cyan-500', 'bg-yellow-500', 'bg-rose-500', 'bg-violet-500'
     ]
 
-    // Exam Types
-    const examTypes = [
-        {
-            id: 1,
-            icon: '📜',
-            title: 'History Exam',
-            bgColor: 'bg-orange-500',
-            description: 'Comprehensive history exam'
-        },
-        {
-            id: 2,
-            icon: '🔬',
-            title: 'Science Exam',
-            bgColor: 'bg-green-500',
-            description: 'Science examination'
-        },
-        {
-            id: 3,
-            icon: '🔢',
-            title: 'Math Exam',
-            bgColor: 'bg-blue-500',
-            description: 'Mathematics examination'
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await getCategories()
+                if (data.success) {
+                    setCategories(data.categories)
+                }
+            } catch (error) {
+                console.error('Failed to fetch categories:', error)
+            } finally {
+                setLoadingCategories(false)
+            }
         }
-    ]
+        fetchCategories()
+    }, [])
 
     const navItems = [
         { id: 'home', icon: '🏠', label: 'Home' },
@@ -100,18 +97,25 @@ const Home = () => {
             {/* Main Content */}
             <div className="max-w-md mx-auto px-4 py-6 space-y-6">
                 {/* Quiz Coins Section */}
-                <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-4">
-                            <span className="text-4xl">🪙</span>
-                            <div>
-                                <p className="text-purple-100 text-sm font-semibold">Quiz Coins</p>
-                                <p className="text-3xl font-bold">{user.quizCoins}</p>
-                            </div>
+                <div className="relative overflow-hidden bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-600 rounded-3xl p-6 text-white shadow-xl">
+                    {/* Decorative circles */}
+                    <div className="absolute -top-6 -right-6 w-28 h-28 bg-white/10 rounded-full" />
+                    <div className="absolute -bottom-8 -right-2 w-40 h-40 bg-white/5 rounded-full" />
+                    <div className="absolute top-4 right-16 w-10 h-10 bg-white/10 rounded-full" />
+
+                    <p className="text-purple-200 text-xs font-semibold uppercase tracking-widest mb-4">Your Balance</p>
+
+                    <div className="flex items-end gap-3 mb-5">
+                        <span className="text-5xl leading-none">🪙</span>
+                        <div>
+                            <p className="text-5xl font-extrabold leading-none tracking-tight">{user.quizCoins}</p>
+                            <p className="text-purple-200 text-sm mt-1 font-medium">Quiz Coins</p>
                         </div>
-                        <button className="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg font-semibold transition">
-                            Earn
-                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-2 bg-white/15 rounded-2xl px-4 py-2.5 w-fit">
+                        <span className="text-lg">🎯</span>
+                        <p className="text-sm font-semibold">Answer correctly to earn more coins!</p>
                     </div>
                 </div>
 
@@ -122,19 +126,29 @@ const Home = () => {
                     </h2>
 
                     {/* Quiz Type Grid */}
-                    <div className="grid grid-cols-2 gap-4">
-                        {quizTypes.map((quiz) => (
-                            <div
-                                key={quiz.id}
-                                className={`${quiz.bgColor} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition cursor-pointer transform hover:scale-105`}
-                                onClick={() => navigate(`/quiz-type/${quiz.id}`)}
-                            >
-                                <div className="text-4xl mb-3">{quiz.icon}</div>
-                                <h3 className="font-bold text-lg">{quiz.title}</h3>
-                                <p className="text-xs opacity-90 mt-1">{quiz.description}</p>
-                            </div>
-                        ))}
-                    </div>
+                    {loadingTypes ? (
+                        <div className="grid grid-cols-2 gap-4">
+                            {[1, 2, 3, 4].map((n) => (
+                                <div key={n} className="bg-gray-200 animate-pulse rounded-2xl h-32" />
+                            ))}
+                        </div>
+                    ) : quizTypes.length === 0 ? (
+                        <p className="text-gray-500 text-center py-6">No quiz types available yet.</p>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-4">
+                            {quizTypes.map((quiz) => (
+                                <div
+                                    key={quiz.id}
+                                    className={`${quiz.bgColor} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition cursor-pointer transform hover:scale-105`}
+                                    onClick={() => navigate(`/quiz-type/${encodeURIComponent(quiz.title)}`)}
+                                >
+                                    <div className="text-4xl mb-3">{quiz.icon}</div>
+                                    <h3 className="font-bold text-lg">{quiz.title}</h3>
+                                    <p className="text-xs opacity-90 mt-1">{quiz.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Exam Zone Section */}
@@ -143,24 +157,38 @@ const Home = () => {
                         <span>📚</span> Exam Zone
                     </h2>
 
-                    {/* Exam Type Grid */}
-                    <div className="grid grid-cols-1 gap-4">
-                        {examTypes.map((exam) => (
-                            <div
-                                key={exam.id}
-                                className={`${exam.bgColor} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition cursor-pointer transform hover:scale-105`}
-                                onClick={() => navigate(`/exam/${exam.id}`)}
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="text-4xl">{exam.icon}</div>
-                                    <div>
-                                        <h3 className="font-bold text-lg">{exam.title}</h3>
-                                        <p className="text-sm opacity-90 mt-1">{exam.description}</p>
+                    {/* Exam / Category Grid */}
+                    {loadingCategories ? (
+                        <div className="grid grid-cols-1 gap-4">
+                            {[1, 2, 3].map((n) => (
+                                <div key={n} className="bg-gray-200 animate-pulse rounded-2xl h-24" />
+                            ))}
+                        </div>
+                    ) : categories.length === 0 ? (
+                        <p className="text-gray-500 text-center py-6">No categories available yet.</p>
+                    ) : (
+                        <div className="grid grid-cols-1 gap-4">
+                            {categories.map((cat, idx) => (
+                                <div
+                                    key={cat._id}
+                                    className={`${CATEGORY_COLORS[idx % CATEGORY_COLORS.length]} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition cursor-pointer transform hover:scale-105`}
+                                    onClick={() => navigate(`/exam/${encodeURIComponent(cat.name)}`)}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        {cat.img ? (
+                                            <img src={cat.img} alt={cat.name} className="w-12 h-12 rounded-full object-cover bg-white/20" />
+                                        ) : (
+                                            <div className="text-4xl">📚</div>
+                                        )}
+                                        <div>
+                                            <h3 className="font-bold text-lg">{cat.name}</h3>
+                                            <p className="text-sm opacity-80 mt-1">Explore {cat.name} questions</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Empty Space for Bottom Navigation */}

@@ -158,7 +158,7 @@ const Sidebar = () => (
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '14px 20px', borderBottom: '1px solid #e5e7eb', flexShrink: 0,
     }}>
-      <span style={{ fontSize: 24, fontWeight: 800, color: '#1f2937' }}>DTQuiz</span>
+      <span style={{ fontSize: 24, fontWeight: 800, color: '#1f2937' }}>QuizMaster</span>
       <span style={{ color: '#374151', display: 'flex', cursor: 'pointer' }}>
         <Icon d={ICONS.menu} size={22} />
       </span>
@@ -174,9 +174,10 @@ const Sidebar = () => (
         label="Basic Items"
         items={[
           { iconKey: 'category', label: 'Category',       to: '/admin/basic-items/category' },
-          { iconKey: 'bulb',     label: 'Skills',         to: '/admin/basic-items/skills' },
-          { iconKey: 'layers',   label: 'Level',          to: '/admin/basic-items/level' },
+          { iconKey: 'bulb',     label: 'Skill',          to: '/admin/basic-items/skills' },
           { iconKey: 'grid',     label: 'Classification', to: '/admin/basic-items/classification' },
+          { iconKey: 'layers',   label: 'Level',          to: '/admin/basic-items/level' },
+          { iconKey: 'star',     label: 'Avatar',         to: '/admin/basic-items/avatar' },
         ]}
       />
       <NavItem iconKey="users" label="Users" to="/admin/users" />

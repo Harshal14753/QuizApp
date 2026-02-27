@@ -11,7 +11,8 @@ const basicItemSchema = new mongoose.Schema({
         required: [true, 'Please provide a name'],
         trim: true,
         minlength: [3, 'Name must be at least 3 characters long'],
-        maxlength: [20, 'Name cannot exceed 50 characters']
+        maxlength: [20, 'Name cannot exceed 50 characters'],
+        unique: true,
     },
     img: {
         type: String,

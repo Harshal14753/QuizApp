@@ -1,4 +1,6 @@
 import User from '../models/user.model.js'
+import Question from '../models/question.model.js'
+import BasicItem from '../models/basicItem.model.js'
 
 export const register = async (req, res) => {
     try {
@@ -14,7 +16,7 @@ export const register = async (req, res) => {
         }
 
         // Check if email already exists
-        const existingUser = await User.findOne({ email })
+        const existingUser = await User.findOne({ email: email.toLowerCase() })
         if (existingUser) {
             return res.status(400).json({
                 success: false,
@@ -44,7 +46,8 @@ export const register = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                quizCoins: user.quizCoins
             }
         })
     } catch (error) {
@@ -67,9 +70,11 @@ export const login = async (req, res) => {
                 message: 'Please provide email and password'
             })
         }
+        console.log("Login attempt:", { email, password }) // Debug log
 
         // Check if user exists
-        const user = await User.findOne({ email }).select('+password')
+        const user = await User.findOne({ email: email.toLowerCase() }).select('+password')
+        console.log("Found user:", user) // Debug log
         if (!user) {
             return res.status(400).json({
                 success: false,
@@ -103,7 +108,8 @@ export const login = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                quizCoins: user.quizCoins
             }
         })
     } catch (error) {
@@ -133,6 +139,7 @@ export const getProfile = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                quizCoins: user.quizCoins,
                 createdAt: user.createdAt
             }
         })
@@ -159,5 +166,86 @@ export const logout = async (req, res) => {
             success: false,
             message: error.message
         })
+    }
+}
+
+export const getQuizTypes = async (req, res) => {
+    try {
+        const quizTypes = await Question.distinct('quizType')
+        res.status(200).json({
+            success: true,
+            quizTypes
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+export const getCategories = async (req, res) => {
+    try {
+        const categories = await BasicItem.find({ type: 'category' }).select('name img')
+        res.status(200).json({
+            success: true,
+            categories
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+export const getBasicItemsByType = async (req, res) => {
+    try {
+        const { type } = req.params
+        const validTypes = ['category', 'skill', 'classification', 'level', 'avtar']
+        if (!validTypes.includes(type)) {
+            return res.status(400).json({ success: false, message: 'Invalid type' })
+        }
+        const items = await BasicItem.find({ type }).select('name img')
+        res.status(200).json({ success: true, items })
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const addCoins = async (req, res) => {
+    try {
+        const { coins } = req.body
+        if (!coins || coins <= 0) {
+            return res.status(400).json({ success: false, message: 'Invalid coins value' })
+        }
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { $inc: { quizCoins: coins } },
+            { new: true }
+        )
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' })
+        }
+        res.status(200).json({ success: true, quizCoins: user.quizCoins })
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const getQuizQuestions = async (req, res) => {
+    try {
+        const { quizType, skill, category, classification, level } = req.query
+        const filter = {}
+        if (quizType)        filter.quizType        = quizType
+        if (skill)           filter.skill           = skill
+        if (category)        filter.category        = category
+        if (classification)  filter.classification  = classification
+        if (level)           filter.level           = level
+        const questions = await Question.find(filter)
+            .populate('category skill classification level', 'name')
+        res.status(200).json({ success: true, questions })
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message })
     }
 }

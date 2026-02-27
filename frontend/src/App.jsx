@@ -10,8 +10,9 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminUsers from './pages/Admin/AdminUsers';
 import AdminUpdateUser from './pages/Admin/AdminUpdateUser';import AdminProfile from './pages/Admin/AdminProfile';import QuizQuestion from './pages/Admin/QuizQuestion';
 import AddQuestion from './pages/Admin/AddQuestion';
-import QuizLeaderboard from './pages/Admin/QuizLeaderboard';
-import ProtectedUserRoute from './components/ProtectedUserRoute'
+import QuizLeaderboard from './pages/Admin/QuizLeaderboard';import BasicItem from './pages/Admin/BasicItem';import ProtectedUserRoute from './components/ProtectedUserRoute'
+import QuizPlay from './pages/QuizPlay'
+import PlayQuiz from './pages/PlayQuiz'
 import ProtectedAdminRoute, { PublicAdminRoute } from './components/ProtectedAdminRoute';
 
 function App() {
@@ -25,6 +26,12 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/home"            element={
           <ProtectedUserRoute><Home /></ProtectedUserRoute>
+        } />
+        <Route path="/quiz-type/:quizType" element={
+          <ProtectedUserRoute><QuizPlay /></ProtectedUserRoute>
+        } />
+        <Route path="/play-quiz" element={
+          <ProtectedUserRoute><PlayQuiz /></ProtectedUserRoute>
         } />
 
         {/* ── Admin auth ── */}
@@ -61,6 +68,12 @@ function App() {
         {/* Quiz Leaderboards  →  /admin/:quizType/leaderboard  */}
         <Route path="/admin/:quizType/leaderboard" element={
           <ProtectedAdminRoute><QuizLeaderboard /></ProtectedAdminRoute>
+        } />
+
+        {/* Basic Items  →  /admin/basic-items/:basicItem  */}
+        {/* basicItem values: category | skills | classification | level | avatar */}
+        <Route path="/admin/basic-items/:basicItem" element={
+          <ProtectedAdminRoute><BasicItem /></ProtectedAdminRoute>
         } />
       </Routes>
     </>

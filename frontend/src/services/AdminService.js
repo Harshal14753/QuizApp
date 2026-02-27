@@ -130,3 +130,49 @@ export const deleteQuestion = async (quizType, id) => {
     }
 }
 
+// Basic Item
+
+export const getBasicItemsByType = async (basicItem) => {
+    try {
+        const response = await http.get(`/admin/basic-item/${basicItem}`)
+        return response.data
+    } catch (error) {
+        throw error
+    }
+}
+
+export const getBasicItemById = async (basicItem, id) => {
+    try {
+        const response = await http.get(`/admin/basic-item/${basicItem}/${id}`)
+        return response.data
+    } catch (error) {
+        throw error
+    }
+}
+
+export const createBasicItem = async (basicItem, formdata) => {
+    try {
+        const response = await http.post(`/admin/basic-item/${basicItem}`, formdata)
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const updateBasicItem = async (basicItem, id, formdata) => {
+    try {
+        const response = await http.put(`/admin/basic-item/${basicItem}/${id}`, formdata)
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const deleteBasicItem = async (basicItem, id) => {
+    try {
+        const response = await http.delete(`/admin/basic-item/${basicItem}/${id}`)
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

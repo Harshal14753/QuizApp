@@ -1,5 +1,6 @@
 import User from '../models/user.model.js';
 import Question from '../models/question.model.js';
+import BasicItem from '../models/basicItem.model.js';
 
 const QUIZ_TYPE_LABELS = {
     'practice-quiz': 'Practice Quiz',
@@ -24,7 +25,7 @@ export const login = async (req, res) => {
         }
 
         const user = await User.findOne({ email }).select('+password'); // ✅ password has select:false in schema
-
+        console.log('Admin user found: ', user?.email, ' Role: ', user?.role);
         if (!user || user.role !== 'admin') {
             console.log('Admin user not found or role mismatch ', user?.role);
             return res.status(401).json({
@@ -33,7 +34,7 @@ export const login = async (req, res) => {
             });
         }
         const isPasswordMatch = await user.comparePassword(password); // ✅ await added
-
+        console.log('Password match: ', isPasswordMatch);   
         if (!isPasswordMatch) {
             return res.status(401).json({
                 success: false,
@@ -247,7 +248,7 @@ export const getAllQuestion = async (req, res) => {
                 message: `Invalid quiz type: ${req.params.quizType}`
             })
         }
-        const questions = await Question.find({ quizType });
+        const questions = await Question.find({ quizType }).populate('category skill classification level', 'name');
 
         res.status(200).json({
             success: true,
@@ -264,7 +265,7 @@ export const getAllQuestion = async (req, res) => {
 
 export const getQuestionById = async (req, res) => {
     try {
-        const question = await Question.findById(req.params.id);
+        const question = await Question.findById(req.params.id).populate('category skill classification level', 'name');
         if (!question) {
             return res.status(404).json({
                 success: false,
@@ -349,6 +350,126 @@ export const deleteQuestion = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'An error occurred while deleting question'
+        });
+    }
+}
+
+export const getBasicItemsByType = async (req, res) => {
+    try {
+        const basicItemType = req.params.basicItem;
+        const items = await BasicItem.find({ type: basicItemType });
+        if (!items) {
+            return res.status(404).json({
+                success: false,
+                message: `${basicItemType} not found`
+            });
+        }
+        res.status(200).json({
+            success: true,
+            items
+        });
+    } catch (error) {
+        console.error(`Error fetching ${req.params.basicItem}:`, error);
+        res.status(500).json({
+            success: false,
+            message: `An error occurred while fetching ${req.params.basicItem}`
+        });
+    }
+}
+
+export const getBasicItemById = async (req, res) => {
+    try {
+        const basicItem = await BasicItem.findById(req.params.id);
+        if (!basicItem) {
+            return res.status(404).json({
+                success: false,
+                message: 'Basic item not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            basicItem
+        });
+    } catch (error) {
+        console.error('Error fetching basic item:', error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching basic item'
+        });
+    }
+}
+
+export const createBasicItem = async (req, res) => {
+    try {
+        const basicItemType = req.params.basicItem;
+        if (!basicItemType) {
+            return res.status(400).json({
+                success: false,
+                message: 'Basic item type is required in URL'
+            });
+        }
+        const basicItemData = req.body;
+        const basicItem = new BasicItem({ ...basicItemData, type: basicItemType });
+        if (!basicItem) {
+            res.status(400).json({
+                success: false,
+                message: "Invalid data for creating basic item"
+            })
+        }
+        await basicItem.save();
+        res.status(201).json({
+            success: true,
+            basicItem
+        })
+    } catch (error) {
+        console.error('Error creating basic item:', error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while creating basic item'
+        });
+    }
+}
+
+export const updateBasicItem = async (req, res) => {
+    try {
+        const basicItem = await BasicItem.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!basicItem) {
+            return res.status(404).json({
+                success: false,
+                message: 'Basic item not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            basicItem
+        });
+    } catch (error) {
+        console.error('Error updating basic item:', error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while updating basic item'
+        });
+    }
+}
+
+export const deleteBasicItem = async (req, res) => {
+    try {
+        const basicItem = await BasicItem.findByIdAndDelete(req.params.id);
+        if (!basicItem) {
+            return res.status(404).json({
+                success: false,
+                message: 'Basic item not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Basic item deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting basic item:', error);
+        res.status(500).json({
+            success: false,
+            message: 'An error occurred while deleting basic item'
         });
     }
 }
